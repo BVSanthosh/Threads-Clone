@@ -33,6 +33,11 @@ const Header = () => {
                     </>
                 )}
             </Flex>
+            <Image
+                cursor={"pointer"}
+				w={6}
+				src={colorMode === "dark" ? "/light_logo.png" : "/dark_logo.png"}
+            /> 
             <Flex alignItems={"center"} gap={4}>
                 {user && (
                     <Flex alignItems={"center"} gap={4}>
