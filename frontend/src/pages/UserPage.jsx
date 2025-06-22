@@ -7,6 +7,7 @@ import Post from "../components/Post.jsx";
 import useGetUserProfile from "../hooks/useGetUserProfile.js";
 import { useRecoilState } from "recoil";
 import postsAtom from "../atoms/postsAtom.js";
+import axiosInstance from "../lib/axios";
 
 const UserPage = () => {
   const { username } = useParams();
@@ -20,8 +21,7 @@ const UserPage = () => {
       if (!user) return;
 
       try {
-        const res = await fetch(`/api/posts/user/${username}`);
-        const data = await res.json();  
+        const { data } = await axiosInstance.get(`/api/posts/user/${username}`);
 
         if (data.error) {
           showToast("Error", data.error.message, "error");
@@ -29,13 +29,13 @@ const UserPage = () => {
         }
 
         setPosts(data);
-      } catch(error) {
+      } catch (error) {
         showToast("Error", error.message, "error");
         setPosts([]);
       } finally {
         setFetchingPosts(false);
       }
-    }
+    };
 
     getPosts();
   }, [username, showToast, setPosts, user]);
@@ -45,7 +45,7 @@ const UserPage = () => {
       <Flex justifyContent={"center"} alignItems={"center"}>
         <Spinner size="xl" />
       </Flex>
-    )
+    );
   }
 
   if (!user) {
@@ -54,22 +54,20 @@ const UserPage = () => {
 
   return (
     <>
-      <UserHeader user={user}/>
-      {!fetchingPosts && posts.length == 0 && (
-        <h1>User has no posts.</h1>
-      )}
+      <UserHeader user={user} />
+      {!fetchingPosts && posts.length === 0 && <h1>User has no posts.</h1>}
 
       {fetchingPosts && (
         <Flex justifyContent={"center"} alignItems={"center"} my={12}>
           <Spinner size={"xl"} />
         </Flex>
       )}
-      
+
       {posts.map((post) => (
         <Post key={post._id} post={post} postedBy={post.postedBy} />
       ))}
     </>
-  )
-}
+  );
+};
 
 export default UserPage;

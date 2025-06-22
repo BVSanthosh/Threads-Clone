@@ -1,18 +1,30 @@
-import { Button, Flex, FormControl, FormLabel, Heading, Input, Stack, useColorModeValue, Avatar, AvatarBadge, IconButton, Center, useSafeLayoutEffect } from '@chakra-ui/react'
-import { useRef, useState } from 'react'
+import {
+  Button,
+  Flex,
+  FormControl,
+  FormLabel,
+  Heading,
+  Input,
+  Stack,
+  useColorModeValue,
+  Avatar,
+  Center,
+} from '@chakra-ui/react';
+import { useRef, useState } from 'react';
 import userAtom from '../atoms/userAtom';
 import { useRecoilState } from 'recoil';
 import usePreviewImage from '../hooks/usePreviewImage';
 import useShowToast from '../hooks/useShowToast';
+import axiosInstance from '../lib/axios';
 
 export default function UpdateProfilePage() {
-  const [user, setUser] = useRecoilState(userAtom); 
-  const [inputs, setInptus] = useState({
+  const [user, setUser] = useRecoilState(userAtom);
+  const [inputs, setInputs] = useState({
     name: user.name,
     username: user.username,
     email: user.email,
     bio: user.bio,
-    password: "",
+    password: '',
   });
   const fileRef = useRef();
   const { handleImageChange, imageUrl } = usePreviewImage();
@@ -27,36 +39,29 @@ export default function UpdateProfilePage() {
     setUpdating(true);
 
     try {
-      const res = await fetch(`/api/users/update/${user._id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({...inputs, profilePic: imageUrl})
-      })
-
-      const data = await res.json();
+      const { data } = await axiosInstance.put(`/api/users/update/${user._id}`, {
+        ...inputs,
+        profilePic: imageUrl,
+      });
 
       if (data.error) {
-        showToast("Error", data.error.message, "error");
+        showToast('Error', data.error.message, 'error');
         return;
       }
 
-      showToast("Success", "Profile updated successfully", "success");
+      showToast('Success', 'Profile updated successfully', 'success');
       setUser(data);
-      localStorage.setItem("user", JSON.stringify(data));
+      localStorage.setItem('user', JSON.stringify(data));
     } catch (error) {
-      showToast("Error", error.message, "error");
+      showToast('Error', error.message, 'error');
     } finally {
       setUpdating(false);
     }
-  }
+  };
 
   return (
     <form onSubmit={handleSubmit}>
-      <Flex
-        align={'center'}
-        justify={'center'}>
+      <Flex align={'center'} justify={'center'}>
         <Stack
           spacing={4}
           w={'full'}
@@ -64,18 +69,21 @@ export default function UpdateProfilePage() {
           bg={useColorModeValue('white', 'gray.dark')}
           rounded={'xl'}
           boxShadow={'lg'}
-          p={6}>
+          p={6}
+        >
           <Heading lineHeight={1.1} fontSize={{ base: '2xl', sm: '3xl' }}>
             User Profile Edit
           </Heading>
           <FormControl id="userName">
             <Stack direction={['column', 'row']} spacing={6}>
               <Center>
-                <Avatar boxShadow={"md"} size="xl" src={imageUrl || user.profilePic } />
+                <Avatar boxShadow={'md'} size="xl" src={imageUrl || user.profilePic} />
               </Center>
               <Center w="full">
-                <Button w="full" onClick={() => fileRef.current.click()}>Change Avatar</Button>
-                <Input type="file" ref={fileRef} onChange={handleImageChange} hidden/>
+                <Button w="full" onClick={() => fileRef.current.click()}>
+                  Change Avatar
+                </Button>
+                <Input type="file" ref={fileRef} onChange={handleImageChange} hidden />
               </Center>
             </Stack>
           </FormControl>
@@ -84,7 +92,7 @@ export default function UpdateProfilePage() {
             <Input
               placeholder="full name"
               value={inputs.name}
-              onChange={(e) => setInptus({...inputs, name: e.target.value})}
+              onChange={(e) => setInputs({ ...inputs, name: e.target.value })}
               _placeholder={{ color: 'gray.500' }}
               type="text"
             />
@@ -94,7 +102,7 @@ export default function UpdateProfilePage() {
             <Input
               placeholder="username"
               value={inputs.username}
-              onChange={(e) => setInptus({...inputs, username: e.target.value})}
+              onChange={(e) => setInputs({ ...inputs, username: e.target.value })}
               _placeholder={{ color: 'gray.500' }}
               type="text"
             />
@@ -104,7 +112,7 @@ export default function UpdateProfilePage() {
             <Input
               placeholder="email"
               value={inputs.email}
-              onChange={(e) => setInptus({...inputs, email: e.target.value})}
+              onChange={(e) => setInputs({ ...inputs, email: e.target.value })}
               _placeholder={{ color: 'gray.500' }}
               type="email"
             />
@@ -114,7 +122,7 @@ export default function UpdateProfilePage() {
             <Input
               placeholder="bio"
               value={inputs.bio}
-              onChange={(e) => setInptus({...inputs, bio: e.target.value})}
+              onChange={(e) => setInputs({ ...inputs, bio: e.target.value })}
               _placeholder={{ color: 'gray.500' }}
               type="text"
             />
@@ -124,7 +132,7 @@ export default function UpdateProfilePage() {
             <Input
               placeholder="password"
               value={inputs.password}
-              onChange={(e) => setInptus({...inputs, password: e.target.value})}
+              onChange={(e) => setInputs({ ...inputs, password: e.target.value })}
               _placeholder={{ color: 'gray.500' }}
               type="password"
             />
@@ -136,7 +144,9 @@ export default function UpdateProfilePage() {
               w="full"
               _hover={{
                 bg: 'red.500',
-              }}>
+              }}
+              // You might want to add a cancel handler here or remove this button if unused
+            >
               Cancel
             </Button>
             <Button
@@ -147,12 +157,13 @@ export default function UpdateProfilePage() {
                 bg: 'green.500',
               }}
               type="submit"
-              isLoading={updating}>
+              isLoading={updating}
+            >
               Submit
             </Button>
           </Stack>
         </Stack>
       </Flex>
     </form>
-  )
+  );
 }

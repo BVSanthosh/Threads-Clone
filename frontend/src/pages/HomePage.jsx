@@ -5,6 +5,7 @@ import Post from "../components/Post.jsx";
 import { useRecoilState } from "recoil";
 import postsAtom from "../atoms/postsAtom.js";
 import SuggestedUsers from "../components/SuggestedUsers.jsx";
+import axiosInstance from "../lib/axios";
 
 const HomePage = () => {
   const [posts, setPosts] = useRecoilState(postsAtom);
@@ -16,8 +17,7 @@ const HomePage = () => {
       setPosts([]);
 
       try { 
-        const res = await fetch("/api/posts/feed");
-        const data = await res.json();
+        const { data } = await axiosInstance.get("/api/posts/feed");
 
         if (data.error) {
           showToast("Error", data.error.message, "error");
