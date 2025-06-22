@@ -2,6 +2,7 @@ import { useRecoilValue } from "recoil";
 import useShowToast from "./useShowToast";
 import userAtom from "../atoms/userAtom";
 import { useState } from "react";
+import axiosInstance from "../lib/axios";
 
 const useHandleFollow = (user) => {
   const currentUser = useRecoilValue(userAtom);
@@ -10,47 +11,39 @@ const useHandleFollow = (user) => {
   const showToast = useShowToast();
 
   const toggleFollow = async () => {
-      if (!currentUser) {
-        showToast("Error", "Please login to follow", "error");
+    if (!currentUser) {
+      showToast("Error", "Please login to follow", "error");
+      return;
+    }
+
+    if (updating) return;
+
+    setUpdating(true);
+
+    try {
+      const res = await axiosInstance.post(`/users/follow/${user._id}`);
+      const data = res.data;
+
+      if (data.error) {
+        showToast("Error", data.error.message || data.error, "error");
         return;
       }
-  
-      if(updating) return;
-  
-      setUpdating(true);
-  
-      try {
-        const res = await fetch(`/api/users/follow/${user._id}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          }
-        });
-  
-        const data = await res.json()
-  
-        if (data.error) {
-          showToast("Error", data.error.message, "error");
-          return;
-        }
-  
-        if (following) {
-          showToast("Success", `Unfollowed ${user.name}`, "success")
-          user.followers.pop();
-        } else{
-          showToast("Success", `Followed ${user.name}`, "success");
-          user.followers.push(currentUser?._id);
-        } 
-        
-        setFollowing(!following);
-      } catch(error) {
-        showToast("Error", error.message, "error");
-      } finally{
-        setUpdating(false);
+
+      if (following) {
+        showToast("Success", `Unfollowed ${user.name}`, "success");
+      } else {
+        showToast("Success", `Followed ${user.name}`, "success");
       }
-  }
+
+      setFollowing(!following);
+    } catch (error) {
+      showToast("Error", error.response?.data?.error || error.message, "error");
+    } finally {
+      setUpdating(false);
+    }
+  };
 
   return { toggleFollow, updating, following };
-}
+};
 
 export default useHandleFollow;

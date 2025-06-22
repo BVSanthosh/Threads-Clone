@@ -16,7 +16,7 @@ export const SocketContextProvider = ({ children }) => {
 
     useEffect(() => {
         const socket = io("/", {
-            withCredentials: true, 
+
             query: {
                 userId: user?._id
             }

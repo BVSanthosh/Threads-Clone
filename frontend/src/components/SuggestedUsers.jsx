@@ -2,6 +2,7 @@ import { Flex, Skeleton, Text, Box, SkeletonCircle } from "@chakra-ui/react";
 import SuggestedUser from "./SuggestedUser.jsx";
 import useShowToast from "../hooks/useShowToast.js";
 import { useEffect, useState } from "react";
+import axiosInstance from "../lib/axios"; // import your axios instance
 
 const SuggestedUsers = () => {
     const [loading, setLoading] = useState(true);
@@ -11,8 +12,8 @@ const SuggestedUsers = () => {
     useEffect(() => {
         const getSuggestedUsers = async () => {
             try {
-                const res = await fetch("/api/users/suggested");
-                const data = await res.json();  
+                const res = await axiosInstance.get("/users/suggested");
+                const data = res.data;
 
                 if (data.error) {
                     showToast("Error", data.error.message, "error");
@@ -21,7 +22,11 @@ const SuggestedUsers = () => {
 
                 setSuggestedUsers(data);
             } catch (error) {
-                showToast("Error", error.message, "error");
+                showToast(
+                  "Error", 
+                  error.response?.data?.error || error.message || "Failed to fetch suggested users",
+                  "error"
+                );
             } finally {
                 setLoading(false);
             }
