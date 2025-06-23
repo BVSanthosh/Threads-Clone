@@ -1,3 +1,4 @@
+import express from "express";
 import { app, server } from "./socket/socket.js";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
