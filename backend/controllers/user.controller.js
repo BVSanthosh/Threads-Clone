@@ -76,7 +76,7 @@ export const login = async (req, res) => {
         const user = await User.findOne({ username });
 
         if (!user) {
-            return res.status(404).json({ error: "User does not exist!" });
+            return res.status(404).json({ error: "Uwhatser does not exist!" });
         }
 
         if (user.isFrozen) {
@@ -210,6 +210,7 @@ export const updateProfile = async (req, res) => {
 }
 
 export const getSuggestedUsers = async (req, res) => {
+    console.log("req: " + req);
     const userId = req.user._id;
 
     try {
@@ -255,3 +256,13 @@ export const freezeAccount = async (req, res) => {
         console.log(`Error in freezeAccount: ${error.message}`);
     }
 }
+
+export const authUser = async (req, res) => {
+  try {
+    const user = req.user;
+    res.status(200).json({ user });
+  } catch (error) {
+    console.error(`Error in authUser: ${error.message}`);
+    res.status(500).json({ error: error.message });
+  }
+};
